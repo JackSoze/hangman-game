@@ -23,7 +23,7 @@ class Game
       unless File.exists?('saved_games') then Dir.mkdir('saved_games') end
       puts 'whats your name?'
       player_name = gets.chomp.downcase
-      File.open("saved_games/#{player_name}.txt",'w'){|file|file.puts serialized_string}
+      File.open("saved_games/saved_game.txt",'w'){|file|file.puts serialized_string}
     end
   end
 
@@ -32,12 +32,11 @@ class Game
       puts "Do you wish to play a saved game? 'yes'"
       answer = gets.chomp.downcase
       if answer == 'yes'
-        puts 'run code for saved game'
-      else
-        self.new
+        deserialize_game
       end
     else
       puts 'No saved games; NEW GAME!'
+      self.word = secret_word_selection
     end
   end
 
@@ -73,23 +72,40 @@ class Game
         puts "Incorrect letters: #{self.wrong_letters}"
       end
       puts self.dashes_arr.join(' ')
+      puts "guesses remaining = #{self.guess}"
       player_letter_input
     end
   end
 
   def game_play
     game_start
-    self.word = secret_word_selection
+
     player_letter_input
     letter_check
   end
 
   def serialize_game
-    YAML.dump(self)
+    YAML.dump({
+      letter: @letter,
+      guess: @guess,
+      word: @word,
+      wrong_letters: @wrong_letters,
+      dashes_arr: @dashes_arr
+    })
   end
 
-  def deserialize_game(selialized_game_string)
-    YAML.load(serialized_game_string,permitted_classes: [Game])
+  def deserialize_game
+    serialized_game_string = File.read('saved_games/saved_game.txt')
+    data = YAML.load(serialized_game_string)
+    resetting_variables(data)
+  end
+
+  def resetting_variables(data)
+    self.letter = data[:letter]
+    self.guess = data[:guess]
+    self.word = data[:word]
+    self.wrong_letters = data[:wrong_letters]
+    self.dashes_arr = data[:dashes_arr]
   end
 end
 
@@ -98,6 +114,8 @@ game = Game.new
 # puts welcome message
 
 # if old games exists, ask the player if they want to play an old game or a new game
+#
 # otherwise play a new game
 # through all iterations, allow the play to input 'save' to save game state
 # to save a game, serialize the game and save it in a folder with the player name
+
