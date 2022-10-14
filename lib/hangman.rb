@@ -8,7 +8,6 @@ class Game
     @guess = 5
     @word = ''
     game_play
-    @dashes_arr = []
   end
 
   attr_accessor :letter, :guess, :word
@@ -69,11 +68,7 @@ class Game
 
       self.wrong_letters = []
     selected_word_arr = @word.split('')
-    self.dashes_arr = []
 
-    (word.length - 1).times { self.dashes_arr.push('_') }
-    dashes = self.dashes_arr.join(' ')
-    puts dashes
 
 
 
