@@ -1,14 +1,13 @@
 ---
 :letter: save
-:guess: 4
-:word: 'unlike
+:guess: 3
+:word: 'third
 
   '
 :wrong_letters: []
 :dashes_arr:
-- u
-- _
-- _
+- t
+- h
 - _
 - _
 - _

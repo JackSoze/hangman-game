@@ -8,6 +8,7 @@ class Game
     @guess = 5
     @word = ''
     game_play
+    @dashes_arr = []
   end
 
   attr_accessor :letter, :guess, :word
@@ -33,7 +34,13 @@ class Game
       answer = gets.chomp.downcase
       if answer == 'yes'
         deserialize_game
+        puts "#{self.word} guesses remaining: #{guess}"
+        puts self.dashes_arr.join(' ')
+      else
+        puts 'Playing a new game'
+        self.word = secret_word_selection
       end
+
     else
       puts 'No saved games; NEW GAME!'
       self.word = secret_word_selection
@@ -43,6 +50,12 @@ class Game
   def secret_word_selection
     word = File.readlines('words.txt').sample.delete_suffix('\n')
     puts word
+
+    self.dashes_arr = []
+
+    (word.length - 1).times { self.dashes_arr.push('_') }
+    dashes = self.dashes_arr.join(' ')
+    puts dashes
     word
   end
 
@@ -53,14 +66,17 @@ class Game
   end
 
   def letter_check
-    self.wrong_letters = []
+
+      self.wrong_letters = []
     selected_word_arr = @word.split('')
     self.dashes_arr = []
 
     (word.length - 1).times { self.dashes_arr.push('_') }
-
     dashes = self.dashes_arr.join(' ')
     puts dashes
+
+
+
     until guess.zero?
       self.guess -= 1
       if selected_word_arr.include?(letter)
