@@ -1,16 +1,13 @@
 ---
 :letter: save
-:guess: 4
-:word: 'staffing
+:guess: 1
+:word: 'took
 
   '
-:wrong_letters: []
+:wrong_letters:
+- d
 :dashes_arr:
-- _
-- _
-- _
-- f
-- f
-- _
-- _
-- _
+- t
+- o
+- o
+- k

@@ -5,30 +5,29 @@ File.open('words.txt') # the words are pasted from google-10000-english-no-swear
 # this is the game class
 class Game
   def initialize
-    @guess = 5
+    @guess = 10
     @word = ''
     game_play
   end
 
-  attr_accessor :letter, :guess, :word
-  attr_accessor :wrong_letters, :dashes_arr
+  attr_accessor :letter, :guess, :word, :wrong_letters, :dashes_arr
+
   def welcome_message
     puts 'welcome to the game Hangman'
     puts 'the rules are simple and as follows'
   end
 
   def save_game
-    if self.letter == 'save'
-      serialized_string = self.serialize_game
-      unless File.exists?('saved_games') then Dir.mkdir('saved_games') end
-      puts 'whats your name?'
-      player_name = gets.chomp.downcase
-      File.open("saved_games/saved_game.txt",'w'){|file|file.puts serialized_string}
-    end
+    return unless self.letter == 'save'
+
+    serialized_string = self.serialize_game
+    Dir.mkdir('saved_games') unless File.exist?('saved_games')
+
+    File.open('saved_games/saved_game.txt', 'w') { |file| file.puts serialized_string }
   end
 
-  def game_start
-    if Dir.exists?('saved_games')
+  def game_select
+    if Dir.exist?('saved_games')
       puts "Do you wish to play a saved game? 'yes'"
       answer = gets.chomp.downcase
       if answer == 'yes'
@@ -39,7 +38,6 @@ class Game
         puts 'Playing a new game'
         self.word = secret_word_selection
       end
-
     else
       puts 'No saved games; NEW GAME!'
       self.word = secret_word_selection
@@ -47,12 +45,10 @@ class Game
   end
 
   def secret_word_selection
-    word = File.readlines('words.txt').sample.delete_suffix('\n')
+    self.word = File.readlines('words.txt').sample.delete_suffix("\n")
     puts word
-
     self.dashes_arr = []
-
-    (word.length - 1).times { self.dashes_arr.push('_') }
+    (word.length).times { self.dashes_arr.push('_') }
     dashes = self.dashes_arr.join(' ')
     puts dashes
     word
@@ -64,54 +60,49 @@ class Game
     save_game
   end
 
-  def letter_check
+  def play_game
+    self.wrong_letters = []
+    selected_word_arr = self.word.split('')
+    puts "the word is #{}"
 
-      self.wrong_letters = []
-    selected_word_arr = @word.split('')
-
-
-
-
-    until guess.zero?
+    until guess.zero? || letter == 'save'
       self.guess -= 1
       if selected_word_arr.include?(letter)
         selected_word_arr.each_with_index do |lettr, index|
           self.dashes_arr[index] = letter if lettr == letter
         end
       else
-        self.wrong_letters.push(letter)
+        self.wrong_letters.push(letter) unless letter == 'save'
         puts "Incorrect letters: #{self.wrong_letters}"
       end
       puts self.dashes_arr.join(' ')
       puts "guesses remaining = #{self.guess}"
+      puts "#{selected_word_arr} and #{dashes_arr}"
+      break if selected_word_arr == self.dashes_arr
       player_letter_input
+
     end
   end
 
   def game_play
-    game_start
-
+    game_select
     player_letter_input
-    letter_check
+    play_game
   end
 
   def serialize_game
     YAML.dump({
-      letter: @letter,
-      guess: @guess,
-      word: @word,
-      wrong_letters: @wrong_letters,
-      dashes_arr: @dashes_arr
-    })
+                letter: @letter,
+                guess: @guess,
+                word: @word,
+                wrong_letters: @wrong_letters,
+                dashes_arr: @dashes_arr
+              })
   end
 
   def deserialize_game
     serialized_game_string = File.read('saved_games/saved_game.txt')
     data = YAML.load(serialized_game_string)
-    resetting_variables(data)
-  end
-
-  def resetting_variables(data)
     self.letter = data[:letter]
     self.guess = data[:guess]
     self.word = data[:word]
@@ -129,4 +120,3 @@ game = Game.new
 # otherwise play a new game
 # through all iterations, allow the play to input 'save' to save game state
 # to save a game, serialize the game and save it in a folder with the player name
-
