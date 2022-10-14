@@ -19,11 +19,11 @@ class Game
 
   def save_game
     if self.letter == 'save'
-      serialized_string = self.serialize
-      unless Dir.exists?('saved_games') then Dir.mkdir('saved_games') end
+      serialized_string = self.serialize_game
+      unless File.exists?('saved_games') then Dir.mkdir('saved_games') end
       puts 'whats your name?'
       player_name = gets.chomp.downcase
-      File.open("saved_game/#{player_name}.txt",'w'){|file|file.puts serialized_string}
+      File.open("saved_games/#{player_name}.txt",'w'){|file|file.puts serialized_string}
     end
   end
 
@@ -37,7 +37,7 @@ class Game
         self.new
       end
     else
-      self.new
+      puts 'No saved games; NEW GAME!'
     end
   end
 
@@ -50,13 +50,7 @@ class Game
   def player_letter_input
     puts 'Please input a letter between a->z'
     self.letter = gets.chomp.downcase
-    if self.letter == 'save'
-      serialized_string = self.serialize
-      unless Dir.exists?('saved_games') then Dir.mkdir('saved_games') end
-      puts 'whats your name?'
-      player_name = gets.chomp.downcase
-      File.open("saved_game/#{player_name}.txt",'w'){|file|file.puts serialized_string}
-    end
+    save_game
   end
 
   def letter_check
@@ -84,6 +78,7 @@ class Game
   end
 
   def game_play
+    game_start
     self.word = secret_word_selection
     player_letter_input
     letter_check
@@ -97,6 +92,8 @@ class Game
     YAML.load(serialized_game_string,permitted_classes: [Game])
   end
 end
+
+game = Game.new
 
 # puts welcome message
 
